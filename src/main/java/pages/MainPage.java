@@ -41,4 +41,3 @@ public class MainPage extends BasePage {
     assertThat(actualMessage, is(expectedMessage));
   }
 }
-

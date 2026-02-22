@@ -4,13 +4,16 @@
 
   Сценарий: Проверка формы Результаты анализов
     Дано открыта главная страница
+    И отображается элемент с xpath "//span[text()='Результаты анализов']"
     И кликаем на элемент с xpath "//span[text()='Результаты анализов']"
     И ожидаем 2 сек
+    И отображается элемент с xpath "//button[text()='Найти результаты']"
     И кликаем на элемент с xpath "//button[text()='Найти результаты']"
-    И отображаются поля
+    И отображаются элементы с xpath
       | //input[@name='orderNumber' and contains(@class, 'Input_error')] |
       | //input[@name='birthday' and contains(@class, 'Input_error')]    |
       | //input[@name='lastName' and contains(@class, 'Input_error')]    |
+      | //div[contains(@class, 'UnauthResultsPage_error')]               |
     Тогда видим сообщение об ошибке "Поля Код ИНЗДата рожденияФамилия обязательны для заполнения"
     И поле с xpath "//input[@name='orderNumber' and contains(@class, 'Input_error')]" заполняем значением "231231231"
     Тогда не отображается элемент с xpath "//input[@name='orderNumber' and contains(@class, 'Input_error')]"

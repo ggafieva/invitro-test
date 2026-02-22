@@ -10,6 +10,7 @@ import io.cucumber.java.ru.Тогда;
 import java.util.List;
 
 public class BaseSteps {
+
   private final BasePage page = new BasePage();
   private final TestContext context = new TestContext();
 
@@ -38,7 +39,7 @@ public class BaseSteps {
     page.waitSeconds(seconds);
   }
 
-  @Тогда("отображаются поля")
+  @Тогда("отображаются элементы с xpath")
   public void shouldSeeFieldsByXpaths(io.cucumber.datatable.DataTable table) {
     List<String> xpaths = table.asList();
     page.shouldSeeFieldsByXpath(xpaths);
@@ -49,7 +50,7 @@ public class BaseSteps {
     page.shouldSeeFieldByXpath(xpath);
   }
 
-  @Тогда("не отображаются поля")
+  @Тогда("не отображаются элементы с xpath")
   public void shouldNotSeeFieldByXpaths(io.cucumber.datatable.DataTable table) {
     List<String> xpaths = table.asList();
     page.shouldNotSeeFieldsByXpath(xpaths);
@@ -71,10 +72,10 @@ public class BaseSteps {
     context.setVariable(variableName, value);
   }
 
-  @Тогда("элемент с xpath {string} равен значению переменной {string}")
-  public void elementEqualsVariable(String xpath, String variableName) {
-    String expectedValue = context.getVariable(variableName);
-    String value = page.getElementTextByXpath(xpath);
-    assertThat(value, is(expectedValue));
+  @Тогда("значения переменных {string} и {string} равны")
+  public void variablesAreEqual(String firstVar, String secondVar) {
+    String firstValue = context.getVariable(firstVar);
+    String secondValue = context.getVariable(secondVar);
+    assertThat(firstValue, is(secondValue));
   }
 }

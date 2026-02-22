@@ -15,18 +15,23 @@ public class RadiologySteps {
     open("/" + city + "/radiology");
   }
 
-  @И("прокликиваем все меню медицинских услуг исключая МРТ тела и проверяем соответствие заголовка")
+  @И("прокликиваем все меню медицинских услуг и проверяем соответствие заголовка")
   public void clickAllMenu() {
-    page.clickAllMenu("МРТ тела");
+    page.clickAllMenu(null);
   }
 
-  @И("прокликиваем все меню медицинских услуг исключая МРТ тела по xpath и проверяем соответствие заголовка")
-  public void clickAllMenuExcludeXpath() {
-    page.clickAllMenuExcludeXpath();
+  @И("прокликиваем все меню медицинских услуг исключая {string} и проверяем соответствие заголовка")
+  public void clickAllMenu(String string) {
+    page.clickAllMenu(string);
   }
 
-  @И("прокликиваем все меню медицинских услуг исключая МРТ тела из коллекции и проверяем соответствие заголовка")
-  public void clickAllMenuExcludeCollection() {
-    page.clickAllMenuExcludeCollection();
+  @И("прокликиваем все меню медицинских услуг исключая {string} по xpath и проверяем соответствие заголовка")
+  public void clickAllMenuExcludeXpath(String string) {
+    page.clickAllMenuExcludeXpath(string);
+  }
+
+  @И("прокликиваем все меню медицинских услуг исключая {string} из коллекции и проверяем соответствие заголовка")
+  public void clickAllMenuExcludeCollection(String string) {
+    page.clickAllMenuExcludeCollection(string);
   }
 }

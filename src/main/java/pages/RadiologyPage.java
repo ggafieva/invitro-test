@@ -4,54 +4,133 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$$x;
 import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.open;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import java.util.ArrayList;
 import java.util.List;
+import models.MenuLink;
 
 public class RadiologyPage {
 
-  private static final String MENU_XPATH = "//div[@class='side-bar side-bar--inner ']//a";
-
   public void clickAllMenu(String excludeText) {
-    ElementsCollection menuItems = $$x(MENU_XPATH)
-        .filter(visible);
-
-    for (SelenideElement item : menuItems) {
-      String text = item.getText().trim();
-      if (text.equals(excludeText)) continue;
-
-      item.click();
-
-      $x("//div[@id='titlePage']/h1").shouldHave(visible)
-          .shouldHave(text(text));
+    String secondXpath =
+        "//div[contains(@class,'side-bar-second')]//li[contains(@class,'side-bar-second__items')]";
+    int secondCount = $$x(secondXpath).size();
+    for (int i = 0; i < secondCount; i++) {
+      SelenideElement second = $$x(secondXpath).get(i);
+      SelenideElement secondLink = second.$("a").shouldBe(visible);
+      String secondText = secondLink.getText().trim();
+      String secondUrl = secondLink.getAttribute("href");
+      if (shouldSkip(secondText, excludeText)) {
+        continue;
+      }
+      open(secondUrl);
+      checkHeader(secondText);
+      processThirdLevel(secondXpath, i, excludeText);
     }
   }
 
-  public void clickAllMenuExcludeXpath() {
-    ElementsCollection menuItems = $$x("//div[@class='side-bar side-bar--inner ']//a[not(text()='МРТ тела')]")
-        .filter(visible);
-
-    for (SelenideElement item : menuItems) {
-      String text = item.getText().trim();
-      item.click();
-      $x("//div[@id='titlePage']/h1").shouldHave(visible)
-          .shouldHave(text(text));
+  private void processThirdLevel(String secondXpath, int secondIndex, String excludeText) {
+    SelenideElement second =
+        $$x(secondXpath).get(secondIndex);
+    ElementsCollection thirdLinks =
+        second.$$x(".//div[contains(@class,'side-bar-third')]//a")
+            .filter(visible);
+    int thirdCount = thirdLinks.size();
+    for (int j = 0; j < thirdCount; j++) {
+      second = $$x(secondXpath).get(secondIndex);
+      thirdLinks = second
+          .$$x(".//div[contains(@class,'side-bar-third')]//a")
+          .filter(visible);
+      SelenideElement third = thirdLinks.get(j);
+      String thirdText = third.getText().trim();
+      String thirdUrl = third.getAttribute("href");
+      if (shouldSkip(thirdText, excludeText)) {
+        continue;
+      }
+      open(thirdUrl);
+      checkHeader(thirdText);
     }
   }
 
-  public void clickAllMenuExcludeCollection() {
-    ElementsCollection menuItems = $$x(MENU_XPATH).filter(visible);
+  private boolean shouldSkip(String text, String excludeText) {
+    return excludeText != null && text.contains(excludeText);
+  }
 
-    List<SelenideElement> filtered = menuItems.stream()
-        .filter(e -> !e.getText().trim().equals("МРТ тела"))
-        .toList();
+  private void checkHeader(String expectedText) {
+    $x("//div[@id='titlePage']/h1")
+        .shouldBe(visible)
+        .shouldHave(text(expectedText));
+  }
 
-    for (SelenideElement item : filtered) {
-      String text = item.getText().trim();
-      item.click();
-      $x("//div[@id='titlePage']/h1").shouldHave(visible)
-          .shouldHave(text(text));
+  public void clickAllMenuExcludeXpath(String excludeText) {
+    String secondXpath =
+        "//div[contains(@class,'side-bar-second')]//li[contains(@class,'side-bar-second__items')]" +
+            (excludeText != null
+                ? "[not(./a[contains(normalize-space(), '" + excludeText + "')])]"
+                : "");
+    int secondCount = $$x(secondXpath).size();
+    for (int i = 0; i < secondCount; i++) {
+      SelenideElement second = $$x(secondXpath).get(i);
+      SelenideElement secondLink = second.$("a").shouldBe(visible);
+      String secondText = secondLink.getText().trim();
+      String secondUrl = secondLink.getAttribute("href");
+      open(secondUrl);
+      checkHeader(secondText);
+      processThirdLevelExcludeXpath(secondXpath, i, excludeText);
+    }
+  }
+
+  private void processThirdLevelExcludeXpath(String secondXpath,
+      int secondIndex,
+      String excludeText) {
+    SelenideElement second =
+        $$x(secondXpath).get(secondIndex);
+    String thirdXpath =
+        ".//div[contains(@class,'side-bar-third')]//a" +
+            (excludeText != null
+                ? "[not(contains(normalize-space(), '" + excludeText + "'))]"
+                : "");
+    ElementsCollection thirdLinks =
+        second.$$x(thirdXpath).filter(visible);
+    int thirdCount = thirdLinks.size();
+    for (int j = 0; j < thirdCount; j++) {
+      second = $$x(secondXpath).get(secondIndex);
+      thirdLinks = second.$$x(thirdXpath).filter(visible);
+      SelenideElement third = thirdLinks.get(j);
+      String thirdText = third.getText().trim();
+      String thirdUrl = third.getAttribute("href");
+      open(thirdUrl);
+      checkHeader(thirdText);
+    }
+  }
+
+  public void clickAllMenuExcludeCollection(String excludeText) {
+    List<MenuLink> thirdLinks = new ArrayList<>();
+    List<String> secondUrls = $$x(
+        "//li[contains(@class,'side-bar-second__items')]/a"
+    ).attributes("href");
+    for (String secondUrl : secondUrls) {
+      open(secondUrl);
+      for (SelenideElement third :
+          $$x("//li[contains(@class,'side-bar-third__items')]/a")) {
+        String text = third.getText().trim();
+        if (!text.isBlank()) {
+          thirdLinks.add(
+              new MenuLink(text, third.getAttribute("href"))
+          );
+        }
+      }
+    }
+    if (excludeText != null) {
+      thirdLinks.removeIf(link ->
+          link.getText().contains(excludeText));
+    }
+    for (MenuLink link : thirdLinks) {
+      open(link.getUrl());
+      checkHeader(link.getText());
     }
   }
 }

@@ -10,7 +10,6 @@ public class WebDriverConfig {
       ConfigFactory.create(ProjectConfig.class);
 
   public static void setup() {
-
     WebDriverManager.chromedriver().setup();
 
     Configuration.browser = config.browser();

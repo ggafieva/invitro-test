@@ -2,14 +2,15 @@
 Функция: Проверка backend запроса current-city
 
   Структура сценария: Проверка ответа сервиса current-city
-    Когда отправляем GET запрос с CODE "<Код>"
+    Когда отправляем GET запрос с CODE "<code>"
     Тогда код ответа равен 200
-    Тогда body содержит "<Тело>"
+    Тогда поля body содержат
+      | city | <city> |
+      | code | <code> |
+      | guid | <guid> |
 
-#    Тут видимо не дает актуальные данные, везде должно быть {\"city\": \"Москва\",\"code\": \"moscow\",\"guid\": \"f1c3c4f0-{int}-4cda-{int}-e5d326e02f97\"}
-  #    но возвращает {\"city\":null,\"code\":null,\"guid\":null}
     Примеры:
-      | Код    | Тело                                        |
-      | bajmak | {\"city\":null,\"code\":null,\"guid\":null} |
-      | moscow | {\"city\":null,\"code\":null,\"guid\":null} |
-      | london | {\"city\":null,\"code\":null,\"guid\":null} |
+      | code   | city   | guid                                 |
+      | bajmak | Bajmak | 5ba940c9-911a-11ea-8456-00155d80e803 |
+      | moscow | Moscow | f1c3c4f0-3426-4cda-8449-e5d326e02f97 |
+      | london | null   | null                                 |

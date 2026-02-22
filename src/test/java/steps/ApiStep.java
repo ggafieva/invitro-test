@@ -22,4 +22,9 @@ public class ApiStep {
   public void checkResponseBody(String text) {
     cityApi.responseBodyShouldContain(text);
   }
+
+  @Тогда("поля body содержат")
+  public void checkBodyFields(io.cucumber.datatable.DataTable table) {
+    cityApi.checkBodyFields(table.asMap());
+  }
 }
